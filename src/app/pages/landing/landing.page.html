@@ -1,84 +1,135 @@
-<ion-app>
-  <ion-header class="ion-no-border">
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-button (click)="toggleSidebar()" fill="clear">
-          <ion-icon name="menu" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      
-      <ion-title class="header-title">
-        <div class="title-content">
-          <ion-icon name="cube" class="title-icon"></ion-icon>
-          <span>EduBox</span>
-        </div>
-      </ion-title>
+<!-- Animated Background Shapes -->
+<div class="bg-shapes">
+  <div class="shape"></div>
+  <div class="shape"></div>
+  <div class="shape"></div>
+  <div class="shape"></div>
+  <div class="shape"></div>
+</div>
 
-      <ion-buttons slot="end">
-        <ion-button (click)="selectTab('profile')" fill="clear" class="profile-button">
-          <ion-icon name="person-circle" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
-
-  <ion-content>
-    <div class="landing-container">
-      <!-- Sidebar -->
-      <div class="sidebar" [class.open]="isSidebarOpen">
-        <div class="sidebar-header">
-          <h3>Navigation</h3>
-          <ion-button (click)="closeSidebar()" fill="clear" class="close-btn">
-            <ion-icon name="close" slot="icon-only"></ion-icon>
-          </ion-button>
-        </div>
-
-        <nav class="sidebar-nav">
-          <div class="nav-section">
-            <h4>Main Features</h4>
-            <div class="nav-item" [class.active]="selectedTab === 'dashboard'" (click)="selectTab('dashboard')">
-              <ion-icon name="home" slot="start"></ion-icon>
-              <span>Dashboard</span>
-            </div>
-            <div class="nav-item" [class.active]="selectedTab === 'coding'" (click)="selectTab('coding')">
-              <ion-icon name="code-slash" slot="start"></ion-icon>
-              <span>LED Cube Coding</span>
-            </div>
-            <div class="nav-item" [class.active]="selectedTab === 'forum'" (click)="selectTab('forum')">
-              <ion-icon name="people" slot="start"></ion-icon>
-              <span>EduBox Forum</span>
-            </div>
-            <div class="nav-item" [class.active]="selectedTab === 'library'" (click)="selectTab('library')">
-              <ion-icon name="library" slot="start"></ion-icon>
-              <span>Library & Presets</span>
-            </div>
-            <div class="nav-item" [class.active]="selectedTab === 'devices'" (click)="selectTab('devices')">
-              <ion-icon name="bluetooth" slot="start"></ion-icon>
-              <span>Device Manager</span>
-            </div>
-          </div>
-
-          <div class="nav-section">
-            <h4>Account</h4>
-            <div class="nav-item" [class.active]="selectedTab === 'profile'" (click)="selectTab('profile')">
-              <ion-icon name="person" slot="start"></ion-icon>
-              <span>Profile</span>
-            </div>
-            <div class="nav-item" (click)="logout()">
-              <ion-icon name="log-out" slot="start"></ion-icon>
-              <span>Logout</span>
-            </div>
-          </div>
-        </nav>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Header -->
+  <div class="header">
+    <div class="user-profile">
+      <div class="avatar">JD</div>
+      <div class="user-info">
+        <h3>John Doe</h3>
+        <p>Student • Level 3</p>
       </div>
-
-      <!-- Main Content -->
-      <div class="main-content">
-        <router-outlet></router-outlet>
-      </div>
-
-      <!-- Mobile Overlay -->
-      <div class="sidebar-overlay" [class.active]="isSidebarOpen" (click)="closeSidebar()"></div>
+      <button class="notification-btn" (click)="showNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </button>
     </div>
-  </ion-content>
-</ion-app>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Carousel -->
+    <div class="carousel-container">
+      <ion-slides [options]="slideOpts" pager="true">
+        <ion-slide *ngFor="let slide of slides">
+          <div class="carousel-item">
+            <h4>{{slide.title}}</h4>
+            <p>{{slide.description}}</p>
+          </div>
+        </ion-slide>
+      </ion-slides>
+    </div>
+
+    <!-- Feature Shortcuts -->
+    <div class="feature-shortcuts">
+      <h3 class="section-title">
+        <ion-icon name="star-outline"></ion-icon> Fitur Unggulan
+      </h3>
+      <div class="shortcuts-grid">
+        <ion-card *ngFor="let feature of features" (click)="navigateTo(feature.route)" class="shortcut-card">
+          <div class="shortcut-icon">
+            <ion-icon [name]="feature.icon"></ion-icon>
+          </div>
+          <ion-card-header>
+            <ion-card-title>{{feature.title}}</ion-card-title>
+            <ion-card-subtitle>{{feature.subtitle}}</ion-card-subtitle>
+          </ion-card-header>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- News Section -->
+    <div class="news-section">
+      <h3 class="section-title">
+        <ion-icon name="newspaper-outline"></ion-icon> Berita Terbaru
+      </h3>
+      <div class="news-list">
+        <ion-card *ngFor="let newsItem of news" class="news-item">
+          <div class="news-header">
+            <div class="news-icon">
+              <ion-icon [name]="newsItem.icon"></ion-icon>
+            </div>
+            <h5>{{newsItem.title}}</h5>
+            <span class="news-time">{{newsItem.time}}</span>
+          </div>
+          <ion-card-content>
+            <p>{{newsItem.content}}</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Forum Section -->
+    <div class="forum-section">
+      <h3 class="section-title">
+        <ion-icon name="chatbubbles-outline"></ion-icon> Forum Diskusi
+      </h3>
+      <ion-card *ngFor="let forum of forumPosts" class="forum-item">
+        <div class="forum-header">
+          <div class="forum-avatar">{{forum.userInitials}}</div>
+          <div class="forum-user">
+            <h6>{{forum.userName}}</h6>
+            <span>{{forum.timeAgo}}</span>
+          </div>
+          <div class="forum-stats">
+            <span>👍 {{forum.likes}}</span>
+            <span>💬 {{forum.comments}}</span>
+          </div>
+        </div>
+        <ion-card-header>
+          <ion-card-title>{{forum.title}}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>{{forum.content}}</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>
+
+<!-- AI Assistant Button -->
+<div class="ai-assistant" (click)="toggleAI()">
+  <ion-icon name="sparkles"></ion-icon>
+</div>
+
+<!-- Bottom Navigation -->
+<ion-tabs>
+  <ion-tab-bar slot="bottom" class="bottom-nav">
+    <ion-tab-button tab="home" class="nav-item active">
+      <ion-icon name="home"></ion-icon>
+      <ion-label>Beranda</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="workspace" class="nav-item" (click)="navigateTo('workspace')">
+      <ion-icon name="game-controller"></ion-icon>
+      <ion-label>3D Space</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="coding" class="nav-item" (click)="navigateTo('coding')">
+      <ion-icon name="code-slash"></ion-icon>
+      <ion-label>Coding</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="modules" class="nav-item" (click)="navigateTo('modules')">
+      <ion-icon name="book"></ion-icon>
+      <ion-label>Modul</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="profile" class="nav-item" (click)="navigateTo('profile')">
+      <ion-icon name="person"></ion-icon>
+      <ion-label>Profile</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

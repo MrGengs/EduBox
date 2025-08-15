@@ -1,0 +1,353 @@
+/* 3D Space Page Styles */
+ion-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --color: #2c3e50;
+  position: relative;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 100%;
+  padding: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Matrix Container */
+.matrix-container {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.matrix-container:active {
+  transform: scale(0.98);
+}
+
+.matrix-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.matrix-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.matrix-badge {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+.led-matrix {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 3px;
+  max-width: 100%;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 
+    inset 0 4px 8px rgba(0, 0, 0, 0.3),
+    0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.led {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #444, #222);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid #555;
+  position: relative;
+  animation: fadeIn 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.led::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.led.green {
+  background: radial-gradient(circle, #00ff88, #00cc66);
+  box-shadow: 
+    0 0 10px #00ff88, 
+    0 0 20px #00ff88, 
+    0 0 30px #00ff88;
+  border-color: #00ff88;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.led.red {
+  background: radial-gradient(circle, #ff4757, #ff3742);
+  box-shadow: 
+    0 0 10px #ff4757, 
+    0 0 20px #ff4757, 
+    0 0 30px #ff4757;
+  border-color: #ff4757;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.led.blue {
+  background: radial-gradient(circle, #3742fa, #2f3542);
+  box-shadow: 
+    0 0 10px #3742fa, 
+    0 0 20px #3742fa, 
+    0 0 30px #3742fa;
+  border-color: #3742fa;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.led.yellow {
+  background: radial-gradient(circle, #ffa502, #ff8f00);
+  box-shadow: 
+    0 0 10px #ffa502, 
+    0 0 20px #ffa502, 
+    0 0 30px #ffa502;
+  border-color: #ffa502;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Color Picker */
+.color-picker {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+ion-segment {
+  --background: transparent;
+  --border-radius: 12px;
+  --background-checked: rgba(255, 255, 255, 0.3);
+  --indicator-color: transparent;
+  padding: 4px;
+}
+
+ion-segment-button {
+  --color: #6c757d;
+  --color-checked: #ffffff;
+  --border-radius: 10px;
+  --background: rgba(255, 255, 255, 0.3);
+  --background-checked: rgba(255, 255, 255, 0.5);
+  --indicator-color: transparent;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  transition: all 0.3s ease;
+  margin: 0 2px;
+}
+
+.color-option {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+}
+
+ion-segment-button::part(indicator) {
+  display: none;
+}
+
+ion-segment-button.segment-button-checked .color-option {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--ion-color-primary);
+}
+
+/* Control Buttons */
+.control-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+ion-button {
+  --border-radius: 12px;
+  --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-weight: 600;
+  text-transform: none;
+  transition: all 0.3s ease;
+}
+
+ion-button:active {
+  transform: translateY(2px);
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Preset Cards */
+.preset-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.preset-card:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.preset-icon {
+  font-size: 2.5rem;
+  text-align: center;
+  padding: 16px 0 8px;
+}
+
+ion-card-header {
+  padding: 8px 16px 16px;
+}
+
+ion-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+ion-card-subtitle {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-transform: none;
+}
+
+/* Particles */
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: particleFloat 15s linear infinite;
+  opacity: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) translateX(0px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 360px) {
+  .led {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .led-matrix {
+    padding: 8px;
+    gap: 2px;
+  }
+  
+  .preset-icon {
+    font-size: 2rem;
+  }
+  
+  ion-button {
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    font-size: 0.9rem;
+  }
+}
+
+/* 3D Effect */
+.matrix-3d {
+  perspective: 1000px;
+}
+
+.matrix-3d .led-matrix {
+  transform: rotateX(35deg) rotateY(20deg);
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.matrix-3d .led {
+  transform: translateZ(8px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.matrix-3d .led.active {
+  transform: translateZ(20px);
+}

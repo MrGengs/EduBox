@@ -1,0 +1,498 @@
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { 
+  IonContent, 
+  IonHeader, 
+  IonTitle, 
+  IonToolbar,
+  IonButton,
+  IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonSegment,
+  IonSegmentButton,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+  IonCard,
+  IonCardContent,
+  IonModal,
+  IonButtons,
+  IonBackButton,
+  ModalController, 
+  ToastController 
+} from '@ionic/angular/standalone';
+
+export interface FileItem {
+  name: string;
+  content: string;
+  language: 'html' | 'css' | 'js';
+  icon: string;
+}
+
+@Component({
+  selector: 'app-coding',
+  templateUrl: './coding.page.html',
+  styleUrls: ['./coding.page.scss'],
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButton,
+    IonIcon,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonSegment,
+    IonSegmentButton,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonTextarea,
+    IonCard,
+    IonCardContent,
+    IonModal,
+    IonButtons,
+    IonBackButton
+  ]
+})
+export class CodingPage implements OnInit, AfterViewInit {
+  private templates: { [key: string]: string } = {
+    'rainbow': '// Rainbow wave animation\nfor (let i = 0; i < 64; i++) {\n  cube.setPixel(i, rainbow(i));\n}\ncube.show();',
+    'wave': '// Wave animation\nfor (let x = 0; x < 4; x++) {\n  for (let y = 0; y < 4; y++) {\n    for (let z = 0; z < 4; z++) {\n      let index = x + y * 4 + z * 16;\n      cube.setPixel(index, waveColor(x + y + z));\n    }\n  }\n}\ncube.show();',
+    'spiral': '// Spiral animation\nlet pattern = [];\nfor (let i = 0; i < 64; i++) {\n  pattern[i] = spiralColor(i);\n}\ncube.setPattern(pattern);\ncube.show();',
+    'game': '// Simple game template\nlet score = 0;\nfunction gameLoop() {\n  // Game logic here\n  cube.show();\n  delay(100);\n}',
+    'basic': '// Basic LED cube animation\nfor (let i = 0; i < 64; i++) {\n  cube.setPixel(i, randomColor());\n}\ncube.show();\ndelay(100);',
+    'pattern': '// Create alternating pattern\nlet pattern = [];\nfor (let i = 0; i < 64; i++) {\n  pattern[i] = (i % 2 === 0) ? RED : BLUE;\n}\ncube.setPattern(pattern);\ncube.show();',
+    'interactive': '// Handle user input\nfunction handleInput(x, y, z) {\n  let index = x + y * 4 + z * 16;\n  cube.setPixel(index, getCurrentColor());\n  cube.show();\n}'
+  };
+  @ViewChild('codeEditor') codeEditor!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('canvasRef') canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild(IonContent) content!: IonContent;
+
+  currentFile = 'index.html';
+  currentLanguage: 'html' | 'css' | 'js' = 'html';
+  isSidebarOpen = false;
+  isOutputOpen = false;
+  showNewFileModal = false;
+  newFileName = '';
+  outputContent = 'Ready to run your code...';
+  code = `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Page</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <p>Selamat datang di EduBox Coding</p>
+</body>
+</html>`;
+
+  files: FileItem[] = [
+    {
+      name: 'index.html',
+      content: `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Page</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <p>Selamat datang di EduBox Coding</p>
+</body>
+</html>`,
+      language: 'html',
+      icon: 'document-text-outline'
+    },
+    {
+      name: 'style.css',
+      content: `body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+h1 {
+    color: #fff;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}`,
+      language: 'css',
+      icon: 'color-palette-outline'
+    },
+    {
+      name: 'script.js',
+      content: `// JavaScript code
+console.log('Hello EduBox!');
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded successfully!');
+    
+    // Add some interactivity
+    const heading = document.querySelector('h1');
+    if (heading) {
+        heading.addEventListener('click', function() {
+            this.style.color = this.style.color === 'yellow' ? 'white' : 'yellow';
+        });
+    }
+});`,
+      language: 'js',
+      icon: 'code-slash-outline'
+    }
+  ];
+
+  constructor(
+    private modalCtrl: ModalController,
+    private toastCtrl: ToastController
+  ) {}
+
+  ngOnInit() {}
+
+  ngAfterViewInit() {
+    this.updateLineNumbers();
+  }
+
+  // Update line numbers in the editor
+  updateLineNumbers() {
+    const textarea = this.codeEditor?.nativeElement;
+    if (!textarea) return;
+    
+    const lines = textarea.value.split('\n');
+    const lineNumbers = document.querySelector('.line-numbers');
+    if (!lineNumbers) return;
+    
+    lineNumbers.innerHTML = '';
+    lines.forEach((_, i) => {
+      const div = document.createElement('div');
+      div.className = 'line-number';
+      div.textContent = (i + 1).toString();
+      lineNumbers.appendChild(div);
+    });
+  }
+
+  // Sync scroll between line numbers and textarea
+  syncScroll(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    const lineNumbers = document.querySelector('.line-numbers');
+    if (lineNumbers) {
+      lineNumbers.scrollTop = textarea.scrollTop;
+    }
+  }
+
+  // Handle code changes
+  onCodeChange() {
+    this.updateLineNumbers();
+  }
+
+  // Get lines for line numbers
+  getLines(): number[] {
+    const textarea = this.codeEditor?.nativeElement;
+    if (!textarea) return [];
+    return Array.from({ length: textarea.value.split('\n').length }, (_, i) => i + 1);
+  }
+
+  // Select a file to edit
+  selectFile(file: FileItem) {
+    this.currentFile = file.name;
+    this.currentLanguage = file.language;
+    this.code = file.content;
+    this.updateLineNumbers();
+  }
+
+  // Create a new file
+  createNewFile() {
+    this.showNewFileModal = true;
+    this.newFileName = '';
+  }
+
+  // Add a new file
+  addNewFile() {
+    if (!this.newFileName) return;
+    
+    // Determine file type and language
+    const extension = this.newFileName.split('.').pop()?.toLowerCase();
+    let language: 'html' | 'css' | 'js' = 'html';
+    let icon = 'document-text-outline';
+    
+    if (extension === 'css') {
+      language = 'css';
+      icon = 'color-palette-outline';
+    } else if (extension === 'js') {
+      language = 'js';
+      icon = 'code-slash-outline';
+    }
+    
+    // Add new file
+    const newFile: FileItem = {
+      name: this.newFileName,
+      content: '',
+      language,
+      icon
+    };
+    
+    this.files.push(newFile);
+    this.selectFile(newFile);
+    this.showNewFileModal = false;
+    this.showToast(`Created ${this.newFileName}`);
+  }
+
+  // Close a file
+  closeFile(event: Event, file: FileItem) {
+    event.stopPropagation();
+    const index = this.files.findIndex(f => f.name === file.name);
+    if (index !== -1) {
+      this.files.splice(index, 1);
+      if (this.currentFile === file.name) {
+        this.selectFile(this.files[0] || this.files[this.files.length - 1]);
+      }
+    }
+  }
+
+  // Delete a file
+  deleteFile(event: Event, file: FileItem) {
+    event.stopPropagation();
+    const index = this.files.findIndex(f => f.name === file.name);
+    if (index !== -1) {
+      this.files.splice(index, 1);
+      if (this.currentFile === file.name) {
+        this.selectFile(this.files[0] || this.files[this.files.length - 1]);
+      }
+      this.showToast(`Deleted ${file.name}`);
+    }
+  }
+
+  // Format code
+  formatCode() {
+    // This is a simplified version - in a real app, you'd use a proper formatter
+    try {
+      if (this.currentLanguage === 'html') {
+        // Simple HTML formatting
+        this.code = this.code
+          .replace(/\s*\n\s*/g, '\n') // Remove extra whitespace
+          .replace(/>\s+</g, '>\n<') // Add newlines between tags
+          .replace(/\n{3,}/g, '\n\n'); // Remove multiple newlines
+      } else if (this.currentLanguage === 'css') {
+        // Simple CSS formatting
+        this.code = this.code
+          .replace(/\s*{\s*/g, ' {\n  ')
+          .replace(/;\s*/g, ';\n  ')
+          .replace(/\s*}\s*/g, '\n}\n\n')
+          .replace(/\n{3,}/g, '\n\n');
+      } else if (this.currentLanguage === 'js') {
+        // Simple JS formatting
+        this.code = this.code
+          .replace(/;\s*/g, ';\n')
+          .replace(/{\s*/g, ' {\n  ')
+          .replace(/}\s*/g, '}\n')
+          .replace(/\n{3,}/g, '\n\n');
+      }
+      this.showToast('Code formatted');
+    } catch (error) {
+      console.error('Error formatting code:', error);
+      this.showToast('Error formatting code', 'danger');
+    }
+  }
+
+  // Run code
+  runCode() {
+    try {
+      // In a real app, you would execute the code in a sandboxed iframe or Web Worker
+      // This is a simplified version that just shows the output
+      const output: string[] = [];
+      
+      // Mock console.log for demonstration
+      const originalConsoleLog = console.log;
+      console.log = (...args) => {
+        output.push(args.map(arg => String(arg)).join(' '));
+        originalConsoleLog(...args);
+      };
+      
+      // Execute the code (in a real app, this would be in a sandbox)
+      if (this.currentLanguage === 'js') {
+        try {
+          // eslint-disable-next-line no-new-func
+          const fn = new Function(this.code);
+          fn();
+        } catch (error) {
+          output.push(`Error: ${error}`);
+        }
+      } else if (this.currentLanguage === 'html') {
+        // In a real app, you would render the HTML in an iframe
+        output.push('HTML preview would be shown here');
+      } else if (this.currentLanguage === 'css') {
+        // In a real app, you would apply the CSS to the preview
+        output.push('CSS would be applied to the preview');
+      }
+      
+      // Restore original console.log
+      console.log = originalConsoleLog;
+      
+      // Update output
+      this.outputContent = output.length > 0 
+        ? output.join('\n') 
+        : 'Code executed successfully (no output)';
+      this.isOutputOpen = true;
+      this.showToast('Code executed');
+    } catch (error) {
+      this.outputContent = `Error: ${error}`;
+      this.isOutputOpen = true;
+      this.showToast('Error executing code', 'danger');
+    }
+  }
+
+  // Save code
+  saveCode() {
+    const file = this.files.find(f => f.name === this.currentFile);
+    if (file) {
+      file.content = this.code;
+      this.showToast('Changes saved');
+    }
+  }
+
+  // Clear output
+  clearOutput() {
+    this.outputContent = '';
+  }
+
+  // Show toast message
+  async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom',
+      buttons: [
+        {
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
+    });
+    await toast.present();
+  }
+
+  // Draw cube visualization
+  private drawCube(ctx: CanvasRenderingContext2D) {
+    ctx.clearRect(0, 0, 400, 400);
+
+    // Draw cube structure
+    ctx.strokeStyle = '#1972a4';
+    ctx.lineWidth = 2;
+
+    // Draw cube outline
+    ctx.beginPath();
+    ctx.moveTo(100, 300);
+    ctx.lineTo(300, 300);
+    ctx.lineTo(300, 100);
+    ctx.lineTo(100, 100);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Draw vertical lines
+    ctx.beginPath();
+    ctx.moveTo(100, 300);
+    ctx.lineTo(100, 100);
+    ctx.moveTo(200, 300);
+    ctx.lineTo(200, 100);
+    ctx.moveTo(300, 300);
+    ctx.lineTo(300, 100);
+    ctx.stroke();
+
+    // Draw horizontal lines
+    ctx.beginPath();
+    ctx.moveTo(100, 200);
+    ctx.lineTo(300, 200);
+    ctx.stroke();
+
+    // Draw sample LEDs
+    this.drawLED(ctx, 150, 250, '#f5b202');
+    this.drawLED(ctx, 200, 250, '#1972a4');
+    this.drawLED(ctx, 250, 250, '#28a745');
+    this.drawLED(ctx, 150, 200, '#dc3545');
+    this.drawLED(ctx, 200, 200, '#6f42c1');
+    this.drawLED(ctx, 250, 200, '#fd7e14');
+  }
+
+  // Draw an LED on the canvas
+  private drawLED(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Add glow effect
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // Update the cube preview with animation
+  private updateCubePreview() {
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Clear and redraw with new pattern
+    this.drawCube(ctx);
+    this.animateCube(ctx);
+  }
+
+  // Animate the cube visualization
+  private animateCube(ctx: CanvasRenderingContext2D) {
+    let frame = 0;
+    const animate = () => {
+      frame++;
+      this.drawCube(ctx);
+
+      // Add animated LEDs
+      const colors = ['#f5b202', '#1972a4', '#28a745', '#dc3545', '#6f42c1'];
+      for (let i = 0; i < 5; i++) {
+        const x = 150 + (i * 25);
+        const y = 250 + Math.sin(frame * 0.1 + i) * 20;
+        const color = colors[i % colors.length];
+        this.drawLED(ctx, x, y, color);
+      }
+
+      if (frame < 100) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    animate();
+  }
+
+  // Load a code template
+  loadTemplate(type: string) {
+    const templates: { [key: string]: string } = {
+      'rainbow': '// Rainbow wave animation\nfor (let i = 0; i < 64; i++) {\n  cube.setPixel(i, rainbow(i));\n}\ncube.show();',
+      'wave': '// Wave animation\nfor (let x = 0; x < 4; x++) {\n  for (let y = 0; y < 4; y++) {\n    for (let z = 0; z < 4; z++) {\n      let index = x + y * 4 + z * 16;\n      cube.setPixel(index, waveColor(x + y + z));\n    }\n  }\n}\ncube.show();',
+      'spiral': '// Spiral animation\nlet pattern = [];\nfor (let i = 0; i < 64; i++) {\n  pattern[i] = spiralColor(i);\n}\ncube.setPattern(pattern);\ncube.show();',
+      'game': '// Simple game template\nlet score = 0;\nfunction gameLoop() {\n  // Game logic here\n  cube.show();\n  delay(100);\n}',
+      'basic': '// Basic LED cube animation\nfor (let i = 0; i < 64; i++) {\n  cube.setPixel(i, randomColor());\n}\ncube.show();\ndelay(100);',
+      'pattern': '// Create alternating pattern\nlet pattern = [];\nfor (let i = 0; i < 64; i++) {\n  pattern[i] = (i % 2 === 0) ? RED : BLUE;\n}\ncube.setPattern(pattern);\ncube.show();',
+      'interactive': '// Handle user input\nfunction handleInput(x, y, z) {\n  let index = x + y * 4 + z * 16;\n  cube.setPixel(index, getCurrentColor());\n  cube.show();\n}'
+    };
+
+    if (templates[type]) {
+      this.code = templates[type];
+      this.outputContent = `Loaded ${type} template`;
+    }
+  }
+}

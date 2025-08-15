@@ -1,0 +1,94 @@
+<!-- 3D Space Page -->
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="" color="primary"></ion-back-button>
+    </ion-buttons>
+    <ion-title>3D LED Matrix</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="is3D = !is3D" [color]="is3D ? 'primary' : 'medium'">
+        <ion-icon slot="icon-only" [name]="is3D ? 'cube' : 'cube-outline'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="container">
+    <!-- LED Matrix -->
+    <div class="matrix-container">
+      <div class="matrix-header">
+        <h2>16x16 LED Matrix</h2>
+        <div class="matrix-badge">{{ is3D ? '3D View' : '2D View' }}</div>
+      </div>
+      <div class="led-matrix" [class.matrix-3d]="is3D" #ledMatrix>
+        <!-- LEDs will be generated dynamically -->
+      </div>
+    </div>
+
+    <!-- Color Picker -->
+    <div class="color-picker">
+      <h3>Pilih Warna</h3>
+      <ion-segment [(ngModel)]="currentColor" (ionChange)="onColorChange($event)">
+        <ion-segment-button value="green">
+          <div class="color-option" style="background: #00ff88;"></div>
+        </ion-segment-button>
+        <ion-segment-button value="red">
+          <div class="color-option" style="background: #ff4757;"></div>
+        </ion-segment-button>
+        <ion-segment-button value="blue">
+          <div class="color-option" style="background: #3742fa;"></div>
+        </ion-segment-button>
+        <ion-segment-button value="yellow">
+          <div class="color-option" style="background: #ffa502;"></div>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="control-buttons">
+      <ion-button expand="block" color="danger" (click)="clearMatrix()">
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        Hapus
+      </ion-button>
+      <ion-button expand="block" color="success" (click)="fillMatrix()">
+        <ion-icon name="square-outline" slot="start"></ion-icon>
+        Isi Semua
+      </ion-button>
+    </div>
+
+    <!-- Animation Presets -->
+    <div class="presets">
+      <h3>Preset Animasi</h3>
+      <div class="presets-grid">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" *ngFor="let preset of presets">
+              <ion-card (click)="loadPreset(preset.id)" class="preset-card" button>
+                <div class="preset-icon">
+                  {{ preset.icon }}
+                </div>
+                <ion-card-header>
+                  <ion-card-title>{{ preset.name }}</ion-card-title>
+                  <ion-card-subtitle>{{ preset.description }}</ion-card-subtitle>
+                </ion-card-header>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button expand="block" color="primary" (click)="saveProject()">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Simpan Proyek
+      </ion-button>
+      <ion-button expand="block" color="tertiary" (click)="shareProject()">
+        <ion-icon name="share-social-outline" slot="start"></ion-icon>
+        Bagikan
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
